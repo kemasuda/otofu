@@ -89,6 +89,65 @@ def check_field(name, fov, parallax_cut=2., plot=False):
     return coord, d
 
 #%%
+from astropy.coordinates import SkyCoord, EarthLocation, AltAz
+from astropy.coordinates import get_sun, get_moon
+from matplotlib.dates import DateFormatter
+def check_altitudes(name, ra, dec, times, maxalt=False):
+    maxalts = []
+
+    keck = EarthLocation.of_site('Keck Observatory')
+    utcoffset = -10*u.hour
+    c = SkyCoord(ra=ra*u.degree, dec=dec*u.degree)
+
+    fig = plt.figure(figsize=(28,12))
+
+    for i,time in enumerate(times):
+            dt = np.linspace(-8, 8, 50)
+            obstimes_local = Time(time) + dt*u.hour
+            obstimes = obstimes_local - utcoffset
+            obsframes = AltAz(obstime=obstimes, location=keck)
+            alts = c.transform_to(obsframes)
+            moonalts = get_moon(obstimes).transform_to(obsframes)
+            sunalts = get_sun(obstimes).transform_to(obsframes)
+
+            tarr = np.array([np.datetime64(t) for t in obstimes_local.value])
+            #fig = plt.figure(figsize=(12,8)) # single
+            fig.add_subplot(2, 4, i+1)
+            plt.ylim(0, 90)
+            plt.ylabel('altitude (deg)')
+            plt.xlabel('local time (HST: UTC$%d$)'%utcoffset.value)
+            plt.xlim(tarr[0], tarr[-1])
+            plt.plot(tarr, alts.alt, label='%s'%name, lw=3, alpha=0.8)
+            plt.plot(tarr, sunalts.alt, color='k', lw=1, label='sun', zorder=-100)
+            plt.plot(tarr, moonalts.alt, color='gray', ls='dashed', lw=1, label='moon', zorder=-100)
+            plt.fill_between(tarr, 0, 90, sunalts.alt>-18*u.deg, color='gray', zorder=-1000, alpha=0.4, lw=0.5)
+            plt.fill_between(tarr, 0, 90, sunalts.alt>-0*u.deg, color='k', zorder=-1000, alpha=0.2, lw=0.5)
+            plt.gca().xaxis.set_major_formatter(DateFormatter('%m/%d %H:%M'))
+            for label in plt.gca().get_xticklabels():
+                    label.set_rotation(30)
+                    label.set_horizontalalignment('right')
+            #if i==6:
+            #        plt.legend(loc='upper left', bbox_to_anchor=(1,1))
+
+            if maxalt:
+                maxalts.append(np.max(alts.alt[sunalts.alt<-18*u.deg].value))
+            else:
+                alts_specified = c.transform_to(AltAz(obstime= Time(time) - utcoffset, location=keck))
+                maxalts.append(np.max(alts_specified.alt.value))
+
+    handler, label = plt.gca().get_legend_handles_labels()
+    fig.legend(handler, label, loc='upper left', bbox_to_anchor=(0.76,0.47), prop={'size':20})
+    fig.tight_layout(h_pad=2., w_pad=0.05)
+
+    return np.array(maxalts), fig
+
+#%% conversion from Gaia mag to JC R mag
+def gaia_to_jcr(g, bprp):
+    gminr = -0.003226 + 0.3833*bprp - 0.1345*bprp**2
+    return g - gminr
+
+
+#%%
 """
 import matplotlib.pyplot as plt
 import seaborn as sns
