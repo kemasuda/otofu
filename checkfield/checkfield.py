@@ -11,8 +11,8 @@ from astroplan.plots import plot_finder_image
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-sns.set(style='ticks', font_scale=1.6, font='sans-serif')
-plt.rcParams["figure.figsize"] = (14,7)
+sns.set(style='ticks', font_scale=1.6*0.5, font='sans-serif')
+plt.rcParams["figure.figsize"] = (14*0.5,7*0.5)
 from matplotlib import rc
 rc('text', usetex=False)
 
@@ -79,7 +79,7 @@ def check_field(name, fov, parallax_cut=2., plot=False):
         plt.xlabel("$H_w$ mag")
         plt.ylabel("stellar radius ($R_\odot$)")
         plt.yscale("log")
-        plt.plot(d.Hwmag, d.rad, 'o')
+        plt.plot(d.Hwmag, d.rad, '.')
         plt.title("stars around %s"%name)
         plt.savefig("%s_rad_hw.png"%name, dpi=200, bbox_inches="tight");
 
