@@ -45,7 +45,21 @@ def serach_tic_using_gaiadr2(source_ids):
     tic_sources = Catalogs.query_criteria(catalog="TIC", GAIA=source_ids)
     return tic_sources.to_pandas()
 
-#%%
+def plot_FC(coord, fov, name, survey="DSS"):
+    plt.figure(figsize=(8,6))
+    ax, hdu=plot_finder_image(coord, survey=survey, reticle=True, fov_radius=fov)
+    plt.title(r'%s %s'%(name, survey))
+    plt.savefig("%s_fov.png"%name, dpi=200, bbox_inches="tight")
+
+def plot_radius_hw(d, name):
+    plt.figure()
+    plt.xlabel("$H_w$ mag")
+    plt.ylabel("stellar radius ($R_\odot$)")
+    plt.yscale("log")
+    plt.plot(d.Hwmag, d.rad, '.')
+    plt.title("stars around %s"%name)
+    plt.savefig("%s_rad_hw.png"%name, dpi=200, bbox_inches="tight");
+
 def check_field(name, fov, parallax_cut=2., plot=False):
     """
     if type(target)=='str':
@@ -69,19 +83,8 @@ def check_field(name, fov, parallax_cut=2., plot=False):
     d["Hwmag"] = 0.7 * d.Jmag + 0.3 * d.Hmag
 
     if plot:
-        survey = "DSS"
-        plt.figure(figsize=(8,6))
-        ax, hdu=plot_finder_image(coord, survey=survey, reticle=True, fov_radius=fov)
-        plt.title(r'%s %s'%(name, survey))
-        plt.savefig("%s_fov.png"%name, dpi=200, bbox_inches="tight")
-
-        plt.figure()
-        plt.xlabel("$H_w$ mag")
-        plt.ylabel("stellar radius ($R_\odot$)")
-        plt.yscale("log")
-        plt.plot(d.Hwmag, d.rad, '.')
-        plt.title("stars around %s"%name)
-        plt.savefig("%s_rad_hw.png"%name, dpi=200, bbox_inches="tight");
+        plot_FC(coord, fov, name)
+        plot_radius_hw(d, name)
 
     return coord, d
 
