@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os, sys
-sys.path.append('/Users/k_masuda/Dropbox/repos/otofu/checkfield')
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(os.getcwd())), 'checkfield'))
 from checkfield import *
 from texio import add_target
 
