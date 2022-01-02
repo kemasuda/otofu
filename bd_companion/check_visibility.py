@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os, sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(os.getcwd())), 'checkfield'))
-from checkfield import *
+#sys.path.append(os.path.join(os.path.dirname(os.path.abspath(os.getcwd())), 'checkfield'))
+from otofu.obsplan import *
 from texio import add_target
 
 #%%
@@ -17,14 +17,11 @@ rc('text', usetex=True)
 d = pd.read_csv("targets_30arcsec_merged.csv")
 d["Rmag"] = gaia_to_jcr(d.phot_g_mean_mag, d.bp_rp)
 
-#%% Subaru S21A
-#times = ['2021-8-1 00:00:00', '2021-10-1 00:00:00', '2021-12-1 00:00:00', '2022-2-1 00:00:00', '2022-4-1 00:00:00', '2022-6-1 00:00:00', '2022-8-1 00:00:00']
+#%%
+#times = ['2021-8-1 00:00:00', '2021-10-1 00:00:00', '2021-12-1 00:00:00', '2022-2-1 00:00:00', '2022-4-1 00:00:00', '2022-6-1 00:00:00', '2022-8-1 00:00:00'] # Subaru S21A
 times = ['2021-3-27 00:00:00']
 times = ['2021-5-27 22:00:00']
 times = ['2021-7-16 02:30:00']
-
-#%%
-list(d.keys())
 
 #%%
 keys1 = ['name', 'spt_opt', 'spt_ir'] + ["sep_companion", "exoplanet", 'ra_j2000_formula', 'dec_j2000_formula', 'pmra_formula', 'pmdec_formula', 'J_2MASS', 'H_2MASS', 'Ks_2MASS', 'z_P1'] #['RAJ2000', 'DEJ2000']
@@ -54,15 +51,8 @@ alt_cut = 40
 hmag_cut = 14.5
 
 #%%
-d[d.name=="Gl 229B"][["J_2MASS", "Ks_2MASS"]]
-
-#%%
 count = 0
-#tfile = open('targets_Mar2021_companion.tex', 'w')
-#tfile = open('targets_May2021_companion.tex', 'w')
 tfile = open('targets_Jul2021.tex', 'w')
-#figdir = 'alts_Mar2021_companion/'
-#figdir = 'alts_May2021_companion/'
 figdir = 'alts_Jul2021/'
 if not os.path.exists(figdir):
     os.system("mkdir %s"%figdir)
