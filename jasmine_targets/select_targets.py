@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from astropy.constants import R_jup, R_sun, R_earth, au, M_sun, M_earth, M_jup
 from astroquery.mast import Catalogs
+from otofu.jasmine import noise_model, HZperiod
 
 #%%
 import seaborn as sns
@@ -12,25 +13,16 @@ sns.set(style='ticks', font_scale=1.6, font='sans-serif')
 from matplotlib import rc
 rc('text', usetex=True)
 
-#%% ejasmine noise in ppm as a function of Hw=0.7J+0.3H for 5min
-def noise_model(hw, hwlim=[7.756708395177219, 12.756708395177219], coeff=[2.73659218e+00, -9.95974284e+01,  1.37688923e+03, -8.47717270e+03,1.95861269e+04]):
-    m = np.poly1d(coeff)
-    if np.sum((hw<hwlim[0])|(hwlim[1]<hw)):
-        print ('Hw outside the valid range:', hwlim)
-    return m(hw)
-
-def HZperiod(mass, s=1, z=np.poly1d([ 0.40127856,  1.54449068,  4.0068301 , -1.17924394])):
-    return 12*s**(-3./4.)/np.sqrt(mass/0.15)*(np.exp(z(np.log(mass)))/3e-3)**(3./4.)
-
+#%%
 def assign_snHZ(d, period_key, mass_key, rad_key, teff_key, jmag_key, hmag_key):
     m, r, t, per = d[mass_key], d[rad_key], d[teff_key], d[period_key]
-    d['pHZ'] = 365.25*(m**(-0.5))*(r**1.5)*((t/5777)**3)
-    #pHZ = HZperiod(d[mass_key])
-    d['depth_earth'] = r**(-2)*(R_earth/R_sun).value**2
+    d['Hwmag'] = d[jmag_key]*0.7 + d[hmag_key]*0.3
+    #d['pHZ'] = 365.25*(m**(-0.5))*(r**1.5)*((t/5777)**3)
+    d['pHZ'] = HZperiod(d[mass_key])
     d['durHZ'] = (13./24.)*(d.pHZ/365.25)**(1./3.)*r/m**(1./3.)*np.pi/4.
     d['ptraHZ'] = 1/(3.7528*d.pHZ**(2./3.)*m**(1./3.)/r)
-    d['Hwmag'] = d[jmag_key]*0.7 + d[hmag_key]*0.3
-    d['snHZ'] = d.depth_earth*1e6/noise_model(d.Hwmag)*np.sqrt(d.durHZ*1440/5.)
+    d['depth_earth'] = r**(-2)*(R_earth/R_sun).value**2
+    d['snHZ'] = d.depth_earth*1e6 / noise_model(d.Hwmag) * np.sqrt(d.durHZ*1440/5.)
     #d['snHZ_tess'] = d.depth_earth*1e6/tessnoise_5min(d.Tmag)*np.sqrt(d.durHZ*1440/5.)
 
 #%% confirmed planets
@@ -64,16 +56,16 @@ catalog_data['tid'] = np.array(catalog_data.ID).astype(int)
 print ("# %d TIC stars found."%len(catalog_data))
 dtoi = pd.merge(dtoi, catalog_data[["tid", "mass", "rad", "Teff", "Jmag", "Hmag"]], on='tid').reset_index(drop=True)
 
-#%%
+#%% fill nan
 dconf_tra['rad'] = dconf_tra['rad'].fillna(dconf_tra['st_rad'])
 dtoi['rad'] = dtoi['rad'].fillna(dtoi['st_rad'])
-
-#%%
 dconf_tra['pl_rade'] = dconf_tra['pl_rade'].fillna(dconf_tra.rad*R_sun*np.sqrt(dconf_tra.pl_trandep*1e-2)/R_earth)
 dtoi['pl_rade'] = dtoi['pl_rade'].fillna(dtoi.rad*R_sun*np.sqrt(dtoi.pl_trandep*1e-6)/R_earth)
 
 #%% missing Teff
+print (dconf_tra.Teff[dconf_tra.hostname=="TRAPPIST-1"])
 dconf_tra.Teff[dconf_tra.hostname=="TRAPPIST-1"] = 2566
+print (dconf_tra.Teff[dconf_tra.hostname=="TRAPPIST-1"])
 
 #%%
 assign_snHZ(dtoi, 'pl_orbper', 'mass', 'rad', 'Teff', 'Jmag', 'Hmag')
@@ -112,7 +104,7 @@ dconf_tess['Hmag'] = dconf_tess.sy_hmag
 datasets = dict(zip(['TESS candidate', 'TESS confirmed', "Kepler/K2", "ground"], [dtoinodup, dconf_tess, dconf_kepler, dconf_other]))
 
 #%%
-d = pd.read_csv('~/Dropbox/research_notes/data/CTLv8_t4000_h11.csv', comment='#')
+d = pd.read_csv('data/CTLv8_t4000_h11.csv', comment='#')
 d = d[d.rad<0.6].reset_index(drop=True)
 d['pHZ'] = HZperiod(d.mass)
 assign_snHZ(d, 'pHZ', 'mass', 'rad', 'Teff', 'Jmag', 'Hmag')
@@ -180,7 +172,7 @@ ax2.set_yticks(mticks)
 ax2.set_yticklabels(['${0:d}$'.format(int(t)) for t in tticks])
 ax2.set_ylabel("effective temperature (K)")
 ax2.set_ylim(0.05, 0.55)
-plt.savefig("select_targets_known_multi2.png", dpi=200, bbox_inches="tight")
+#plt.savefig("select_targets_known_multi2.png", dpi=200, bbox_inches="tight")
 #plt.savefig("select_targets_known_single2.png", dpi=200, bbox_inches="tight")
 
 #%%
@@ -283,7 +275,7 @@ plt.title("known transiting planets smaller than $1.5\,R_\oplus$ (filled: classi
 plt.legend(loc='lower left')
 
 ax2 = ax.twinx()
-ax2.set_xscale('linear', subsx=[-2])
+ax2.set_xscale('linear')#, subsx=[-2])
 ax2.set_yticks(mticks)
 ax2.set_yticklabels(['${0:d}$'.format(int(t)) for t in tticks])
 ax2.set_ylabel("effective temperature (K)")
