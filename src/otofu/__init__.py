@@ -8,3 +8,4 @@ __license__ = "MIT"
 __description__ = "observing tools for UCDs"
 
 from . import obsplan
+from . import jasmine
