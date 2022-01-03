@@ -104,7 +104,7 @@ for t in tticks:
     mticks.append(marr[np.argmin(np.abs(tarr-t))])
 
 #%%
-fig = plt.figure(figsize=(17,8))
+fig = plt.figure(figsize=(17*0.9,8*0.9))
 ax = fig.gca()
 ax.set_ylabel("stellar mass ($M_\odot$)")
 ax.set_xlabel("$H_\mathrm{w}$ (mag)")
@@ -150,7 +150,7 @@ plt.plot(np.sort(np.tile(hmag1, 2))[::-1], np.sort(np.r_[medges[1:], medges[0:-1
 plt.plot(np.sort(np.tile(hmag10, 2))[::-1], np.sort(np.r_[medges[1:], medges[0:-1]]), ls='dotted', lw=1, color='k')
 
 #plt.text(7.5-0.5, 0.54, "brightest transiting HZ Earth\n(100\% occurrence)", ha='right', va='bottom', fontsize=16)
-plt.text(7.5-0.3, 0.54, r"brightest hosts of transiting HZ Earths\\\phantom{aa}detectable w/ JASMINE (100\% occurrence)", ha='right', va='bottom', fontsize=16)
+plt.text(7.5-0.15, 0.54+0.01, r"brightest hosts of transiting HZ Earths\\\phantom{aa}detectable w/ JASMINE (100\% occurrence)", ha='right', va='bottom', fontsize=16)
 plt.text(7.5+1.7-0.5, 0.54+0.02, "(10\% occurrence)", ha='right', va='bottom', fontsize=16)
 
 plt.title("transiting planets smaller than $1.5\,R_\oplus$")
