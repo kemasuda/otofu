@@ -51,6 +51,8 @@ print (dconf_tra.Teff[dconf_tra.hostname=="TRAPPIST-1"])
 dconf_tess['mass'] = dconf_tess.st_mass
 dconf_tess['rad'] = dconf_tess.st_rad
 dconf_tess['Hmag'] = dconf_tess.sy_hmag
+dconf_tess['Jmag'] = dconf_tess.sy_jmag
+dconf_tess['Teff'] = dconf_tess.st_teff
 dconf_tess.mass[dconf_tess.tid==259377017] = 0.362274
 
 #%% remove TOIs duplicated in confirmed TESS/tranet catalogs
