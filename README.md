@@ -22,7 +22,7 @@ observing tools for UCDs
 ### jasmine_targets
 
 - compile information of known transiting planets around M dwarfs
-- cool dwarfs around which transiting Earths are searchable with JASMINE
+- cool dwarfs around which habitable Earths are searchable with JASMINE
 - list up potential targets for JASMINE planet search
 
 ### others
