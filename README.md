@@ -7,7 +7,7 @@ observing tools for UCDs
 
 ## Tasks
 
-### checkfield
+### check_field
 
 - radius vs Hw mags of stars around nearby M dwarfs
 
@@ -25,9 +25,12 @@ observing tools for UCDs
 - cool dwarfs around which habitable Earths are searchable with JASMINE
 - list up potential targets for JASMINE planet search
 
+### locate_companion
+
+- fit RV and astometry to predict the location of an unseen companion
+
 ### others
 
 - Gaia visual binaries suited for FIM calibration
-- fit RV and astometry to predict the location of an unseen companion
 - find candidate BD companions around bright stars
 
