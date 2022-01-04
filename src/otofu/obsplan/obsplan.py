@@ -89,6 +89,7 @@ def check_field(name, fov, parallax_cut=2., plot=False):
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
 from astropy.coordinates import get_sun, get_moon
 from matplotlib.dates import DateFormatter
+# altitude from Keck
 def check_altitudes(name, ra, dec, times, maxalt=False):
     maxalts = []
 
@@ -137,6 +138,21 @@ def check_altitudes(name, ra, dec, times, maxalt=False):
     fig.tight_layout(h_pad=2., w_pad=0.05)
 
     return np.array(maxalts), fig
+
+#%%
+def check_altitude(ra, dec, time):
+    keck = EarthLocation.of_site('Keck Observatory')
+    utcoffset = -10*u.hour
+    c = SkyCoord(ra=ra*u.degree, dec=dec*u.degree)
+
+    obstimes_local = Time(time)
+    obstimes = obstimes_local - utcoffset
+    obsframes = AltAz(obstime=obstimes, location=keck)
+    alts = c.transform_to(obsframes)
+    moonalts = get_moon(obstimes).transform_to(obsframes)
+    sunalts = get_sun(obstimes).transform_to(obsframes)
+
+    return alts.alt, moonalts.alt, sunalts.alt
 
 #%% conversion from Gaia mag to JC R mag
 def gaia_to_jcr(g, bprp):
