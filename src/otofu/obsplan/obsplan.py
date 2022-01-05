@@ -19,6 +19,7 @@ def query_simbad(name):
     c = SkyCoord(ra=result_table["RA"], dec=result_table["DEC"], frame='icrs', unit=(u.hourangle, u.deg), obstime=Time("J2000.0"))
     return c
 
+#%% EDR3 cone search
 def search_gaia_cone(ra, dec, radius):
     from astroquery.gaia import Gaia
     coord = SkyCoord(ra=float(ra)*u.degree, dec=float(dec)*u.degree, frame="icrs", obstime=Time("J2016.0"))
@@ -26,6 +27,7 @@ def search_gaia_cone(ra, dec, radius):
     r = j.get_results().to_pandas()
     return r
 
+#%% DR2 square search
 def search_gaia_square(coord, fov, table="gaiadr2.gaia_source", nmax=100000):
     from astroquery.gaia import Gaia
     Gaia.MAIN_GAIA_TABLE = table
@@ -58,20 +60,25 @@ def plot_radius_hw(d, name):
     plt.title("stars around %s"%name)
     plt.savefig("%s_rad_hw.png"%name, dpi=200, bbox_inches="tight");
 
-def check_field(name, fov, parallax_cut=2., plot=False):
-    """
-    if type(target)=='str':
-        coord = query_simbad(name)[0]
+#%% Gaia DR2 x TIC
+def check_field(target, fov, parallax_cut=2., plot=False):
+    if type(target)==str:
+        print ("# searching simbad name...")
+        coord = query_simbad(target)[0]
     elif isinstance(target, SkyCoord):
+        print ("# using coordinates...")
         coord = target
     else:
         print ("# input should be a simbad name or SkyCoord object.")
         return None
-    """
-    coord = query_simbad(name)[0]
+    #coord = query_simbad(name)[0]
 
     gaia_sources = search_gaia_square(coord, fov)
     gaia_sources = gaia_sources[gaia_sources.parallax > parallax_cut].reset_index(drop=True)
+    if not len(gaia_sources):
+        print ("# no Gaia source found.")
+        return None
+
     tic_sources = serach_tic_using_gaiadr2(gaia_sources.source_id)
     tic_sources["source_id"] = np.array(tic_sources.GAIA).astype(np.int)
     tic_sources = tic_sources.rename(columns={'ra': 'ra_tic', 'dec': 'dec_tic'})
@@ -138,7 +145,7 @@ def check_altitudes(name, ra, dec, times, maxalt=False):
 
     return np.array(maxalts), fig
 
-#%%
+#%% may be updated using slect_targets in reach
 def check_altitude(ra, dec, time):
     keck = EarthLocation.of_site('Keck Observatory')
     utcoffset = -10*u.hour
