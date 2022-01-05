@@ -63,7 +63,6 @@ def plot_radius_hw(d, name):
 #%% Gaia DR2 x TIC
 def check_field(target, fov, parallax_cut=2., plot=False):
     if type(target)==str:
-        print ("# searching simbad name...")
         coord = query_simbad(target)[0]
     elif isinstance(target, SkyCoord):
         print ("# using coordinates...")
@@ -145,7 +144,7 @@ def check_altitudes(name, ra, dec, times, maxalt=False):
 
     return np.array(maxalts), fig
 
-#%% may be updated using slect_targets in reach
+#%% may be updated using select_targets in reach
 def check_altitude(ra, dec, time):
     keck = EarthLocation.of_site('Keck Observatory')
     utcoffset = -10*u.hour
