@@ -29,8 +29,11 @@ observing tools for UCDs
 
 - fit RV and astometry to predict the location of an unseen companion
 
+### gaiavb
+
+- find Gaia visual binaries suited for FIM calibration
+
 ### to be added(?)
 
-- Gaia visual binaries suited for FIM calibration
 - find candidate BD companions around bright stars
 
