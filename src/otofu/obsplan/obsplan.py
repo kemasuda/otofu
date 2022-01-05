@@ -1,5 +1,5 @@
 
-__all__ = ["query_simbad", "plot_FC", "plot_radius_hw", "check_field", "check_altitudes", "gaia_to_jcr"]
+__all__ = ["query_simbad", "plot_FC", "plot_radius_hw", "check_field", "check_altitudes", "check_altitude", "gaia_to_jcr"]
 
 #%%
 import numpy as np
@@ -49,6 +49,7 @@ def plot_FC(coord, fov, name, survey="DSS"):
     plt.savefig("%s_fov.png"%name, dpi=200, bbox_inches="tight")
 
 def plot_radius_hw(d, name):
+    d["Hwmag"] = 0.7 * d.Jmag + 0.3 * d.Hmag
     plt.figure()
     plt.xlabel("$H_w$ mag")
     plt.ylabel("stellar radius ($R_\odot$)")
@@ -76,8 +77,6 @@ def check_field(name, fov, parallax_cut=2., plot=False):
     tic_sources = tic_sources.rename(columns={'ra': 'ra_tic', 'dec': 'dec_tic'})
 
     d = pd.merge(gaia_sources, tic_sources, on='source_id')
-    d["mg"] = d.phot_g_mean_mag + 5 * np.log10(d.parallax) - 10
-    d["Hwmag"] = 0.7 * d.Jmag + 0.3 * d.Hmag
 
     if plot:
         plot_FC(coord, fov, name)
