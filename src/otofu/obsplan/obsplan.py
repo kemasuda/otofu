@@ -1,5 +1,5 @@
 
-__all__ = ["query_simbad", "plot_FC", "plot_radius_hw", "check_field", "check_altitudes", "check_altitude", "gaia_to_jcr"]
+__all__ = ["query_simbad", "search_gaia_cone", "plot_FC", "plot_radius_hw", "check_field", "check_altitudes", "check_altitude", "gaia_to_jcr", "search_twomass"]
 
 #%%
 import numpy as np
@@ -89,6 +89,24 @@ def check_field(target, fov, parallax_cut=2., plot=False):
         plot_radius_hw(d, name)
 
     return coord, d
+
+from astroquery.vizier import Vizier
+def search_twomass(ra, dec, source_id1, radius=5.):
+    try:
+        len(radius)
+    except:
+        radius = np.ones_like(ra) * radius
+    d2m = pd.DataFrame({})
+    for i in range(len(ra)):
+        result = Vizier(columns=["*", "+_r"]).query_region(SkyCoord(ra=ra[i], dec=dec[i], unit=(u.deg, u.deg), frame='icrs'), radius=radius[i]*u.arcsec, catalog=["II/246/out"])
+        try:
+            _d = result["II/246/out"].to_pandas()
+        except:
+            continue
+        _d['source_id1'] = source_id1[i]
+        d2m = d2m.append(_d)
+    d2m = d2m.rename({"_2MASS": "2MASS"}, axis='columns')
+    return d2m
 
 #%%
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
