@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import astropy.units as u
 from astropy.coordinates import SkyCoord
-from astroquery.vizier import Vizier
-from otofu.obsplan import check_altitude
+#from astroquery.vizier import Vizier
+from otofu.obsplan import check_altitude, search_twomass
 
 #%%
 def add_vbinfo(data):
@@ -20,20 +20,6 @@ def add_vbinfo(data):
     data['poserror'] = np.sqrt(data.ra_error1**2 + data.dec_error1**2 + data.ra_error2**2 + data.dec_error2**2 \
             + (10*data.pmra_error1)**2 + (10*data.pmdec_error1)**2 + (10*data.pmra_error2)**2 + (10*data.pmdec_error2)**2)
     return data
-
-def search_twomass(ra, dec, source_id1, radius=5.):
-    d2m = pd.DataFrame({})
-    for i in range(len(ra)):
-        result = Vizier.query_region(SkyCoord(ra=ra[i], dec=dec[i], unit=(u.deg, u.deg), frame='icrs'),
-                radius=radius*u.arcsec, catalog=["II/246/out"])
-        try:
-            _d = result["II/246/out"].to_pandas()
-        except:
-            continue
-        _d['source_id1'] = source_id1[i]
-        d2m = d2m.append(_d)
-    d2m = d2m.rename({"_2MASS": "2MASS"}, axis='columns')
-    return d2m
 
 def select_targets(time, alt_min=45, gmag_max=8, deltagmag_min=1, deltagmag_max=4, sep_max=30., twomass_rad=5., R_max=0.1):
     data = pd.read_pickle("eb21binary_g11.pkl")
