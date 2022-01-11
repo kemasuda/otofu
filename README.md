@@ -27,7 +27,7 @@ observing tools for UCDs
 
 ### locate_companion
 
-- fit RV and astometry to predict the location of an unseen companion
+- fit RV and astometry to predict the location of an unseen companion (requires [jkepler](https://github.com/kemasuda/jkepler))
 
 ### gaiavb
 
