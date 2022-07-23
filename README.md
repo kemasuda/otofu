@@ -1,4 +1,4 @@
-# otofu
+# otofu :white_medium_square:
 observing tools for UCDs
 
 ## Installation
