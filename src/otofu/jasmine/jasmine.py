@@ -35,13 +35,26 @@ def get_mtticks(tticks=[2800, 3100, 3250, 3400, 3600]):
 
 #%% JASMINE S/N for HZ Earth
 from astropy.constants import R_sun, R_earth
+def Hw_from_2MASS(J, H):
+    """
+        Args:
+            J: 2MASS J mag
+            H: 2MASS H mag
+
+        Returns:
+            JASMINE Hw mag (updated on 2023 Mar 10)
+    """
+    Hw = 0.9 * J + 0.1 * H - 0.06 * (J-H)**2
+    return Hw
+
 def assign_snHZ(d, mass_key, rad_key, teff_key, jmag_key, hmag_key, duty_cycle=0.5):
     m, r, t = d[mass_key], d[rad_key], d[teff_key]
 
-    d['Hwmag'] = d[jmag_key]*0.7 + d[hmag_key]*0.3
+    #d['Hwmag'] = d[jmag_key]*0.7 + d[hmag_key]*0.3
+    d['Hwmag'] = Hw_from_2MASS(d[jmag_key], d[hmag_key])
     d['pHZ'] = HZperiod(m, radius=r, teff=t, s=0.85) # inner edge
     d['durHZ'] = (13./24.) * (d.pHZ/365.25)**(1./3.) * r/m**(1./3.) * np.pi/4.
-    d['ptraHZ'] = 1 / (3.7528*d.pHZ**(2./3.)*m**(1./3.)/r)
+    d['ptraHZ'] = 1 / (4.2083*d.pHZ**(2./3.)*m**(1./3.)/r)
     d['depth_earth'] = r**(-2) * (R_earth/R_sun).value**2
     d['snHZ'] = d.depth_earth*1e6 / noise_model(d.Hwmag) * np.sqrt(d.durHZ*1440/5.*duty_cycle)
     #d['snHZ_tess'] = d.depth_earth*1e6/tessnoise_5min(d.Tmag)*np.sqrt(d.durHZ*1440/5.)
